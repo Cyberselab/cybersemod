@@ -1,9 +1,9 @@
-# @cybersemod/config
+# @cyberselab/config
 
 Payboy 配置约定的独立实现。Bun >= 1.3.14，ESM，无导入时副作用，不读取 argv、不修改全局环境、不缓存结果。
 
 ```ts
-import { loadConfig } from "@cybersemod/config/load";
+import { loadConfig } from "@cyberselab/config/load";
 import { z } from "zod";
 
 const config = await loadConfig({

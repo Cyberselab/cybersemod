@@ -34,12 +34,12 @@ Payboy 中值得保留的约定：
 
 | 包 | 应负责 | 应用继续负责 |
 | --- | --- | --- |
-| `@cybersemod/config` | 身份与前缀、路径策略、文件读取、dotenv、环境映射、深合并、调用校验器、结构化加载错误 | Schema、业务默认值、业务配置约束、应用级缓存 |
-| `@cybersemod/command` | Commander 工厂、注册约定、参数归属、action 的配置上下文、统一错误出口、帮助与版本 | 命令树、交互问题、具体 action、数据库与服务启动 |
+| `@cyberselab/config` | 身份与前缀、路径策略、文件读取、dotenv、环境映射、深合并、调用校验器、结构化加载错误 | Schema、业务默认值、业务配置约束、应用级缓存 |
+| `@cyberselab/command` | Commander 工厂、注册约定、参数归属、action 的配置上下文、统一错误出口、帮助与版本 | 命令树、交互问题、具体 action、数据库与服务启动 |
 
 依赖方向：CLI 的配置适配模块依赖 config；config 不依赖 CLI。CLI 直接暴露 Commander 的 Command 类型，保留原生扩展能力，不另造一套命令描述语言。
 
-构建信息先放在 `@cybersemod/command/build-info` 子路径。只有非 CLI 消费方确实需要时再拆包。日志、进程生命周期、数据库迁移和交互表单暂不独立成包，避免把 Payboy 的业务资源模型带入基础库。
+构建信息先放在 `@cyberselab/command/build-info` 子路径。只有非 CLI 消费方确实需要时再拆包。日志、进程生命周期、数据库迁移和交互表单暂不独立成包，避免把 Payboy 的业务资源模型带入基础库。
 
 按模块提供显式导出，如 `config/load`、`config/app-name`、`command/app`、`command/config`、`command/build-info`，避免集中 barrel export。根路径导出策略在实现时统一确定。
 
@@ -48,7 +48,7 @@ Payboy 中值得保留的约定：
 建议由位置参数改为 options 对象，以便增加可注入能力：
 
 ```ts
-import { loadConfig } from "@cybersemod/config/load";
+import { loadConfig } from "@cyberselab/config/load";
 
 const config = await loadConfig({
   appName: "@example/server",
@@ -116,8 +116,8 @@ CLI 对原始 argv 的读取只发生在运行入口；参数分流模块可单�
 
 ```ts
 // cli/app.ts
-import { createCliApp } from "@cybersemod/command/app";
-import { withConfig } from "@cybersemod/command/config";
+import { createCliApp } from "@cyberselab/command/app";
+import { withConfig } from "@cyberselab/command/config";
 import { serverConfigSchema } from "../config-schema";
 
 export function createApp() {

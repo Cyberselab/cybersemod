@@ -1,4 +1,4 @@
-import { defineCommand } from "@cybersemod/command/command";
+import { defineCommand } from "@cyberselab/command/command";
 
 export const useShowCommand = defineCommand<{ uppercase?: boolean }>({
   name: "show <label>",

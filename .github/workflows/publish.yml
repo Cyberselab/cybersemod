@@ -1,0 +1,59 @@
+name: Publish GitHub Packages
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-packages
+  cancel-in-progress: false
+
+jobs:
+  check:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+          registry-url: https://npm.pkg.github.com
+          scope: '@cyberselab'
+      - uses: oven-sh/setup-bun@v2
+      - name: Validate release version
+        run: bun scripts/check-release.ts
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      # Bun pack converts workspace:^ into a registry-compatible semver range.
+      - name: Pack config
+        working-directory: packages/config
+        run: bun pm pack --filename ../../config.tgz --ignore-scripts
+      - name: Pack command
+        working-directory: packages/command
+        run: bun pm pack --filename ../../command.tgz --ignore-scripts
+      - name: Publish config
+        run: npm publish ./config.tgz --ignore-scripts --tag "$DIST_TAG"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DIST_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
+      - name: Publish command
+        run: npm publish ./command.tgz --ignore-scripts --tag "$DIST_TAG"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DIST_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}

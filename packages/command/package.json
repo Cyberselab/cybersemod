@@ -1,8 +1,10 @@
 {
-  "name": "@cybersemod/command",
+  "name": "@cyberselab/command",
   "version": "0.1.0",
   "type": "module",
   "description": "Payboy conventions for organizing Commander applications, commands and actions",
+  "repository": { "type": "git", "url": "git+https://github.com/Cyberselab/cybersemod.git", "directory": "packages/command" },
+  "publishConfig": { "registry": "https://npm.pkg.github.com" },
   "engines": { "bun": ">=1.3.14 <2" },
   "files": ["src", "dist", "README.md"],
   "exports": {
@@ -13,5 +15,5 @@
     "./errors": { "bun": "./src/errors.ts", "types": "./dist/errors.d.ts", "default": "./dist/errors.js" }
   },
   "scripts": { "build": "tsc -p tsconfig.build.json", "test": "bun test ./test" },
-  "dependencies": { "@cybersemod/config": "workspace:^", "commander": "^13.1.0" }
+  "dependencies": { "@cyberselab/config": "workspace:^", "commander": "^13.1.0" }
 }

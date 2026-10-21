@@ -1,7 +1,7 @@
-import { loadConfig, type LoadConfigOptions } from "@cybersemod/config/load";
-import { ConfigError } from "@cybersemod/config/errors";
-import { readFlagConfig, readSetConfig } from "@cybersemod/config/flags";
-import { mergeConfigRecords } from "@cybersemod/config/record";
+import { loadConfig, type LoadConfigOptions } from "@cyberselab/config/load";
+import { ConfigError } from "@cyberselab/config/errors";
+import { readFlagConfig, readSetConfig } from "@cyberselab/config/flags";
+import { mergeConfigRecords } from "@cyberselab/config/record";
 import { getActionContext, type ActionContext, type CommandOptions } from "./command.js";
 import { CommandInputError } from "./errors.js";
 import { appStates, rootCommand } from "./state.js";

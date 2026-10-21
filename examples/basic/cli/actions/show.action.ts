@@ -1,5 +1,5 @@
-import type { CommandAction } from "@cybersemod/command/command";
-import { loadCommandConfig } from "@cybersemod/command/config";
+import type { CommandAction } from "@cyberselab/command/command";
+import { loadCommandConfig } from "@cyberselab/command/config";
 import { configSchema } from "../../config-schema.js";
 
 export const showAction: CommandAction<{ uppercase?: boolean }> = async ({ command, options, args }) => {

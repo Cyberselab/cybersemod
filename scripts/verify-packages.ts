@@ -19,16 +19,16 @@ try {
   await mkdir(consumer);
   await writeFile(join(consumer, "package.json"), JSON.stringify({
     name: "package-consumer", private: true, type: "module",
-    dependencies: { "@cybersemod/config": `file:../config.tgz`, "@cybersemod/command": `file:../command.tgz` },
-    // Both packages are unpublished: bind the transitive semver dependency to our tarball too.
-    overrides: { "@cybersemod/config": "file:../config.tgz" },
+    dependencies: { "@cyberselab/config": `file:../config.tgz`, "@cyberselab/command": `file:../command.tgz` },
+    // Always use this build for the transitive dependency, even after packages are published.
+    overrides: { "@cyberselab/config": "file:../config.tgz" },
   }));
   await execute([process.execPath, "install", "--ignore-scripts"], consumer);
   const source = `
-import { loadConfig } from '@cybersemod/config/load';
-import { createCliApp, runCli } from '@cybersemod/command/app';
-import { defineCommand } from '@cybersemod/command/command';
-import { withConfig } from '@cybersemod/command/config';
+import { loadConfig } from '@cyberselab/config/load';
+import { createCliApp, runCli } from '@cyberselab/command/app';
+import { defineCommand } from '@cyberselab/command/command';
+import { withConfig } from '@cyberselab/command/config';
 const options = { appName: '@smoke/server', schema: { parse(input: unknown) { return input as { port: string }; } }, file: { required: false }, dotenv: false, environment: {}, directories: { current: '.', home: '.', system: '.' } };
 const config = await loadConfig({ ...options, flags: { port: '1' } });
 const port: string = config.port;

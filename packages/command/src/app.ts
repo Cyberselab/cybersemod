@@ -1,5 +1,5 @@
 import { Command, CommanderError } from "commander";
-import { ConfigError } from "@cybersemod/config/errors";
+import { ConfigError } from "@cyberselab/config/errors";
 import { formatBuildInfo, type BuildInfo } from "./build-info.js";
 import { CommandInputError } from "./errors.js";
 import { partitionLegacyArguments } from "./arguments.js";

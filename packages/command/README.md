@@ -1,10 +1,10 @@
-# @cybersemod/command
+# @cyberselab/command
 
 对 Payboy 中 Commander 使用范式的封装与约束。项目继续拥有业务命令，包提供 `app → command → action` 的组织方式、延迟加载、配置适配和执行入口。使用原生 Commander，不引入另一套命令树描述语言。
 
 ```ts
 // cli/commands/serve.command.ts
-import { defineCommand } from "@cybersemod/command/command";
+import { defineCommand } from "@cyberselab/command/command";
 
 export const useServeCommand = defineCommand({
   name: "serve",
@@ -13,7 +13,7 @@ export const useServeCommand = defineCommand({
 });
 
 // cli/app.ts
-import { createCliApp } from "@cybersemod/command/app";
+import { createCliApp } from "@cyberselab/command/app";
 const app = createCliApp({
   name: "example",
   description: "Example CLI",
@@ -22,7 +22,7 @@ const app = createCliApp({
 });
 
 // main.ts
-import { runCli } from "@cybersemod/command/app";
+import { runCli } from "@cyberselab/command/app";
 process.exitCode = await runCli(app);
 ```
 
@@ -35,7 +35,7 @@ process.exitCode = await runCli(app);
 在 action 中调用 `loadCommandConfig(command, options)`，返回类型由 Schema 推导；或者使用 `withConfig(options, action)` 直接适配原生 `.action()`：
 
 ```ts
-import { withConfig } from "@cybersemod/command/config";
+import { withConfig } from "@cyberselab/command/config";
 
 app.command("serve").action(withConfig(
   { appName: "@example/server", schema: serverConfigSchema },

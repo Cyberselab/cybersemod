@@ -1,4 +1,4 @@
-import { createCliApp } from "@cybersemod/command/app";
+import { createCliApp } from "@cyberselab/command/app";
 import { useShowCommand } from "./commands/show.command.js";
 
 export function createApp() {
