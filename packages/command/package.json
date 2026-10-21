@@ -1,6 +1,6 @@
 {
   "name": "@cyberselab/command",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Payboy conventions for organizing Commander applications, commands and actions",
   "repository": { "type": "git", "url": "git+https://github.com/Cyberselab/cybersemod.git", "directory": "packages/command" },

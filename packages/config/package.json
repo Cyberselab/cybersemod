@@ -1,6 +1,6 @@
 {
   "name": "@cyberselab/config",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Payboy-style application configuration loading",
   "repository": { "type": "git", "url": "git+https://github.com/Cyberselab/cybersemod.git", "directory": "packages/config" },
