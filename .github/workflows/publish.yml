@@ -1,4 +1,4 @@
-name: Publish GitHub Packages
+name: Publish Packages
 
 on:
   release:
@@ -13,6 +13,14 @@ on:
         description: Publish a prerelease to the next dist-tag
         default: false
         type: boolean
+      target:
+        description: Registry to publish to
+        default: both
+        type: choice
+        options:
+          - both
+          - github
+          - npmjs
 
 permissions:
   contents: read
@@ -28,14 +36,21 @@ jobs:
       ref: ${{ inputs.tag || github.ref }}
 
   publish:
+    name: Publish (${{ matrix.target }})
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
       packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(inputs.target == 'npmjs' && '["npmjs"]' || inputs.target == 'github' && '["github"]' || '["github", "npmjs"]') }}
     env:
       DIST_TAG: ${{ (inputs.prerelease || github.event.release.prerelease) && 'next' || 'latest' }}
+      REGISTRY: ${{ matrix.target == 'npmjs' && 'https://registry.npmjs.org' || 'https://npm.pkg.github.com' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -45,9 +60,12 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
-          registry-url: https://npm.pkg.github.com
+          registry-url: ${{ env.REGISTRY }}
           scope: '@cyberselab'
       - uses: oven-sh/setup-bun@v2
+      - name: Set up npm with Trusted Publishing support
+        if: matrix.target == 'npmjs'
+        run: npm install --global npm@11.21.0 --registry=https://registry.npmjs.org
       - name: Validate release version
         run: bun scripts/check-release.ts
         env:
@@ -55,6 +73,18 @@ jobs:
           RELEASE_PRERELEASE: ${{ inputs.prerelease || github.event.release.prerelease || false }}
       - run: bun install --frozen-lockfile
       - run: bun run build
+      # Also handles old tags whose package.json pins GitHub Packages.
+      - name: Set the target registry in package manifests
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          for (const name of ['config', 'command']) {
+            const path = `packages/${name}/package.json`;
+            const pkg = JSON.parse(readFileSync(path, 'utf8'));
+            pkg.publishConfig = { ...pkg.publishConfig, registry: process.env.REGISTRY };
+            writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
+          }
+          NODE
       # Bun pack converts workspace:^ into a registry-compatible semver range.
       - name: Pack config
         working-directory: packages/config
@@ -66,15 +96,18 @@ jobs:
         run: |
           test -s "$GITHUB_WORKSPACE/config.tgz"
           test -s "$GITHUB_WORKSPACE/command.tgz"
-          npm publish ./config.tgz --dry-run --ignore-scripts --tag "$DIST_TAG"
-          npm publish ./command.tgz --dry-run --ignore-scripts --tag "$DIST_TAG"
+          args=(--registry "$REGISTRY" --ignore-scripts --tag "$DIST_TAG")
+          if [ '${{ matrix.target }}' = npmjs ]; then args+=(--access public); fi
+          npm publish ./config.tgz --dry-run "${args[@]}"
+          npm publish ./command.tgz --dry-run "${args[@]}"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish config
-        run: npm publish ./config.tgz --ignore-scripts --tag "$DIST_TAG"
+          # npmjs authenticates through GitHub OIDC, without an npm access token.
+          NODE_AUTH_TOKEN: ${{ matrix.target == 'github' && secrets.GITHUB_TOKEN || '' }}
+      - name: Publish config then command
+        run: |
+          args=(--registry "$REGISTRY" --ignore-scripts --tag "$DIST_TAG")
+          if [ '${{ matrix.target }}' = npmjs ]; then args+=(--access public); fi
+          npm publish ./config.tgz "${args[@]}"
+          npm publish ./command.tgz "${args[@]}"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish command
-        run: npm publish ./command.tgz --ignore-scripts --tag "$DIST_TAG"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ matrix.target == 'github' && secrets.GITHUB_TOKEN || '' }}

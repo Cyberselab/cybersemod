@@ -4,7 +4,6 @@
   "type": "module",
   "description": "Payboy-style application configuration loading",
   "repository": { "type": "git", "url": "git+https://github.com/Cyberselab/cybersemod.git", "directory": "packages/config" },
-  "publishConfig": { "registry": "https://npm.pkg.github.com" },
   "engines": { "bun": ">=1.3.14 <2" },
   "files": ["src", "dist", "README.md"],
   "exports": {
