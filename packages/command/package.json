@@ -1,0 +1,17 @@
+{
+  "name": "@cybersemod/command",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Payboy conventions for organizing Commander applications, commands and actions",
+  "engines": { "bun": ">=1.3.14 <2" },
+  "files": ["src", "dist", "README.md"],
+  "exports": {
+    "./app": { "bun": "./src/app.ts", "types": "./dist/app.d.ts", "default": "./dist/app.js" },
+    "./command": { "bun": "./src/command.ts", "types": "./dist/command.d.ts", "default": "./dist/command.js" },
+    "./config": { "bun": "./src/config.ts", "types": "./dist/config.d.ts", "default": "./dist/config.js" },
+    "./build-info": { "bun": "./src/build-info.ts", "types": "./dist/build-info.d.ts", "default": "./dist/build-info.js" },
+    "./errors": { "bun": "./src/errors.ts", "types": "./dist/errors.d.ts", "default": "./dist/errors.js" }
+  },
+  "scripts": { "build": "tsc -p tsconfig.build.json", "test": "bun test ./test" },
+  "dependencies": { "@cybersemod/config": "workspace:^", "commander": "^13.1.0" }
+}

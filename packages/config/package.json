@@ -1,0 +1,21 @@
+{
+  "name": "@cybersemod/config",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Payboy-style application configuration loading",
+  "engines": { "bun": ">=1.3.14 <2" },
+  "files": ["src", "dist", "README.md"],
+  "exports": {
+    "./load": { "bun": "./src/load.ts", "types": "./dist/load.d.ts", "default": "./dist/load.js" },
+    "./app-name": { "bun": "./src/app-name.ts", "types": "./dist/app-name.d.ts", "default": "./dist/app-name.js" },
+    "./errors": { "bun": "./src/errors.ts", "types": "./dist/errors.d.ts", "default": "./dist/errors.js" },
+    "./record": { "bun": "./src/record.ts", "types": "./dist/record.d.ts", "default": "./dist/record.js" },
+    "./search": { "bun": "./src/search.ts", "types": "./dist/search.d.ts", "default": "./dist/search.js" },
+    "./file": { "bun": "./src/file.ts", "types": "./dist/file.d.ts", "default": "./dist/file.js" },
+    "./dotenv": { "bun": "./src/dotenv.ts", "types": "./dist/dotenv.d.ts", "default": "./dist/dotenv.js" },
+    "./environment": { "bun": "./src/environment.ts", "types": "./dist/environment.d.ts", "default": "./dist/environment.js" },
+    "./flags": { "bun": "./src/flags.ts", "types": "./dist/flags.d.ts", "default": "./dist/flags.js" }
+  },
+  "scripts": { "build": "tsc -p tsconfig.build.json", "test": "bun test ./test" },
+  "dependencies": { "dotenv": "^17.2.3", "smol-toml": "^1.4.2", "yaml": "^2.8.1" }
+}

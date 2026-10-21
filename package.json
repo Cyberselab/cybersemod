@@ -1,0 +1,22 @@
+{
+  "name": "cybersemod",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.14",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "test": "bun test ./packages",
+    "typecheck": "tsc --noEmit",
+    "example": "bun examples/basic/main.ts",
+    "verify:packages": "bun run build && bun scripts/verify-packages.ts",
+    "build": "bun run --filter @cybersemod/config build && bun run --filter @cybersemod/command build",
+    "check": "bun run typecheck && bun test ./packages && bun run build"
+  },
+  "devDependencies": {
+    "@cybersemod/config": "workspace:*",
+    "@cybersemod/command": "workspace:*",
+    "@types/bun": "^1.3.14",
+    "typescript": "^5.9.3",
+    "zod": "^4.0.0"
+  }
+}
