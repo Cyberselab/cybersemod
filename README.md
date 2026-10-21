@@ -47,6 +47,8 @@ bun run example show demo --config ./server.toml
 
 发布工作流会重新运行完整 CI，校验两个包版本与标签一致，再按 config → command 顺序打包发布。`bun pm pack` 会将 `workspace:^` 转为实际版本范围，npm 发布 tarball 到 `https://npm.pkg.github.com`。工作流使用内置 `GITHUB_TOKEN`，已声明 `packages: write`，无需额外配置发布 Secret；组织需允许该仓库使用 Actions 和创建包。
 
+如果发布在任何包上传成功前失败，可修复工作流并推送到 `main`，然后在 Actions → Publish GitHub Packages → Run workflow 中选择 `main`，填写原版本标签（如 `v0.1.0`）并设置预发布选项。手动流程使用最新工作流，CI 与发布均检出指定标签的代码。直接重跑旧任务仍会使用旧工作流；已有包版本发布成功时，应按下述部分发布说明处理。
+
 预发布版本例如 `v0.2.0-rc.1` 必须勾选 GitHub Release 的预发布选项，发布到 `next`；正式版本使用 `latest`。版本不允许带 `+build` 元数据。已发布版本不可覆盖；两个包发布并非原子操作，若第二个包失败，应修复权限或网络问题后，仅补发失败包，或为两个包提升版本并创建新 Release。
 
 包名作用域使用 GitHub 组织的小写名称 `@cyberselab`。两个包的 `repository` 均关联本仓库，`publishConfig` 固定 GitHub Packages。首次发布的包默认私有，如需公开可在包设置中调整可见性。

@@ -3,6 +3,16 @@ name: Publish GitHub Packages
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to publish (e.g. v0.1.0)
+        required: true
+        type: string
+      prerelease:
+        description: Publish a prerelease to the next dist-tag
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -14,6 +24,8 @@ concurrency:
 jobs:
   check:
     uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ inputs.tag || github.ref }}
 
   publish:
     needs: check
@@ -22,9 +34,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      DIST_TAG: ${{ (inputs.prerelease || github.event.release.prerelease) && 'next' || 'latest' }}
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.tag || github.ref }}
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
@@ -36,24 +51,30 @@ jobs:
       - name: Validate release version
         run: bun scripts/check-release.ts
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+          RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name }}
+          RELEASE_PRERELEASE: ${{ inputs.prerelease || github.event.release.prerelease || false }}
       - run: bun install --frozen-lockfile
       - run: bun run build
       # Bun pack converts workspace:^ into a registry-compatible semver range.
       - name: Pack config
         working-directory: packages/config
-        run: bun pm pack --filename ../../config.tgz --ignore-scripts
+        run: bun pm pack --filename "$GITHUB_WORKSPACE/config.tgz" --ignore-scripts
       - name: Pack command
         working-directory: packages/command
-        run: bun pm pack --filename ../../command.tgz --ignore-scripts
+        run: bun pm pack --filename "$GITHUB_WORKSPACE/command.tgz" --ignore-scripts
+      - name: Verify publish tarballs
+        run: |
+          test -s "$GITHUB_WORKSPACE/config.tgz"
+          test -s "$GITHUB_WORKSPACE/command.tgz"
+          npm publish ./config.tgz --dry-run --ignore-scripts --tag "$DIST_TAG"
+          npm publish ./command.tgz --dry-run --ignore-scripts --tag "$DIST_TAG"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish config
         run: npm publish ./config.tgz --ignore-scripts --tag "$DIST_TAG"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DIST_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
       - name: Publish command
         run: npm publish ./command.tgz --ignore-scripts --tag "$DIST_TAG"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DIST_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
